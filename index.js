@@ -1,19 +1,15 @@
-import axios from "axios";
+const puppeteer= require("puppeteer");
 
-const URL = "https://park.cinesabc.com/";
+async function ScrapeData(url) {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    // Usamos 'networkidle2' (espera a que no haya más de 2 conexiones activas)
+    // Y aumentamos el timeout a 60 segundos por si la web es lenta
+    await page.goto(url, {timeout: 60000, waitUntil: 'networkidle2'});
+    await page.screenshot({path : "cartelera.png"});
 
-async function main() {
-    // Una petición HTTP GET a la URL del cine fingiendo ser un navegador real. Es lo mismo que cuando escribes la URL en Chrome.
-  const response = await axios.get(URL, {
-    headers: {
-      "User-Agent": "Mozilla/5.0"
-    }
-  });
-
-  // response es un objeto con mucha info
-  console.log(response.status);
-  //console.log(response.headers);
-  console.log(response.data.slice(0, 500));
+    await browser.close();
 }
 
-main();
+ScrapeData("https://park.cinesabc.com/");
+ 
