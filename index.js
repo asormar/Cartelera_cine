@@ -15,7 +15,18 @@ async function ScrapeData(url) {
         return Array.from(document.querySelectorAll(".hora-ses")).map(x => x.textContent)
     })
 
-    console.log(hours);
+
+    await page.click(".etiq-ses");
+
+    // Espera a que aparezca el elemento del segundo click
+    await page.waitForSelector(".ficha-sinopsis");
+
+    const clickedData = await page.evaluate(() => {
+        return Array.from(document.querySelectorAll(".ficha-sinopsis")).map(x => x.textContent)
+    })
+
+    console.log(clickedData);
+
 
     await browser.close();
 }
