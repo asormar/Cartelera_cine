@@ -18,6 +18,7 @@ async function ScrapeData(url) {
         })
     })
 
+    const allFilmsData = [];
 
     for (let film of allFilms){
         await page.goto(film.date_url_id, {
@@ -76,19 +77,20 @@ async function ScrapeData(url) {
         const insideFilms = {
             title: film.title,
             sinopsis: Sinopsis,
-            Days: Days,
-            Hours: Hours
+            days: Days,
+            hours: Hours
         };
 
-        console.log(JSON.stringify(insideFilms, null, 2));
+        allFilmsData.push(insideFilms);
+
         break;
     }
 
-    
-
     browser.close();
 
-    //console.log(allFilms);
+    console.dir(allFilmsData, { depth: null, colors: true }); //Like console.log but does not block objects view
+
+    return allFilmsData;
 }
 
 ScrapeData("https://park.cinesabc.com/");
