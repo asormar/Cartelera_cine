@@ -13,10 +13,18 @@ async function ScrapeData(url) {
 
         return Array.from(billboards).map((billboard) => {
             const title= billboard.querySelector(".ver-ficha").innerText.trim();
-            const date_url_id= billboard.querySelector(".mas-ses.ver-ficha").getAttribute("id-ficha");
+            const date_url_id= billboard.querySelector(".cartelera-imagen a").getAttribute("href");
             return ({title, date_url_id});
         })
     })
+
+
+
+
+    await page.click(".mas-ses.ver-ficha");
+    //const clickedData= await page.$eval(".ficha-sinopsis", element => element.textContent);
+
+    //await page.$eval(".ficha-sinopsis", element => element.textContent);
 
     browser.close();
 
