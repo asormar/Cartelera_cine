@@ -1,34 +1,26 @@
-const puppeteer= require("puppeteer");
+import puppeteer from "puppeteer";
 
 async function ScrapeData(url) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    // Usamos 'networkidle2' (espera a que no haya más de 2 conexiones activas)
-    // Y aumentamos el timeout a 60 segundos por si la web es lenta
-    await page.goto(url, {timeout: 60000, waitUntil: 'networkidle2'});
+    const browser= await puppeteer.launch();
+    const page= await browser.newPage();
+    await page.goto(url, {
+        waitUntil: 'domcontentloaded',
+        timeout: 60000
+    }); // This is for pages like Cines ABC that exceds default timeout
 
-    const titles = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll(".cartelera-titulo b")).map(x => x.textContent)
+    const allFilms= await page.evaluate(() => {
+        const billboards= document.querySelectorAll(".cartelera");
+
+        return Array.from(billboards).map((billboard) => {
+            const title= billboard.querySelector(".ver-ficha").innerText.trim();
+            const date_url_id= billboard.querySelector(".mas-ses.ver-ficha").getAttribute("id-ficha");
+            return ({title, date_url_id});
+        })
     })
 
-    const hours = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll(".hora-ses")).map(x => x.textContent)
-    })
+    browser.close();
 
-
-    await page.click(".etiq-ses");
-
-    // Espera a que aparezca el elemento del segundo click
-    await page.waitForSelector(".ficha-sinopsis");
-
-    const clickedData = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll(".ficha-sinopsis")).map(x => x.textContent)
-    })
-
-    console.log(clickedData);
-
-
-    await browser.close();
+    console.log(allFilms);
 }
 
 ScrapeData("https://park.cinesabc.com/");
