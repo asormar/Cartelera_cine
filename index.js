@@ -20,12 +20,6 @@ async function ScrapeData(url) {
 
 
 
-
-    await page.click(".mas-ses.ver-ficha");
-    //const clickedData= await page.$eval(".ficha-sinopsis", element => element.textContent);
-
-    //await page.$eval(".ficha-sinopsis", element => element.textContent);
-
     browser.close();
 
     console.log(allFilms);
