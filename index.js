@@ -31,26 +31,57 @@ async function ScrapeData(url) {
         });
 
         const Days= await page.evaluate(() => {
+            const allTabs= document.querySelectorAll(".ui-tabs-tab");
+
             const daysElements= document.querySelectorAll(".fch-format"); //Here we are taking all the hours queries without html
-            const daysText= Array.from(daysElements).map(element => element.innerText.trim());
+            const daysTemporary= Array.from(daysElements).map(element => element.innerText.trim());
+
+            const daysText= []
+            for (let i=0; i<allTabs.length; i++){
+                const currentTab = allTabs[i];
+                const currentDay = daysTemporary[i];
+                
+                daysText.push({[currentTab.getAttribute("aria-controls")]: currentDay});
+            }
+
             return daysText;
         });
 
-        const Hours= await page.evaluate(() => {
-            const hoursElements= document.querySelectorAll(".hora-ses");
-            const hoursText= Array.from(hoursElements).map(element => element.innerText.trim());
-            return hoursText;
-        });
+        const Hours= await page.evaluate((Days) => { //Introduce Days as argument to use it inside the function
+            const ids_Found= [];
+            const hoursText= [];
+            const allPanels= document.querySelectorAll(".ui-tabs-panel");
+
+            for (let i=0; i<Days.length; i++){
+                const currentPanel = allPanels[i];
+
+                if (currentPanel){
+                    const each_id= currentPanel.getAttribute("id");
+
+                    const hoursElements= document.querySelectorAll("div#" + each_id + ".ui-tabs-panel.ui-corner-bottom.ui-widget-content div.panel-sesiones div.cont-ses div.hora-ses");
+                    const hoursTemporary= Array.from(hoursElements).map(element => element.innerText.trim());
+
+                    ids_Found.push(each_id);
+                    hoursText.push({[each_id]: hoursTemporary});
+                }
+            }
+
+
+
+
+            return {hoursText};
+
+        }, Days);
 
         const insideFilms = {
             title: film.title,
             sinopsis: Sinopsis,
-            days: Days,
-            hours: Hours
+            Days: Days,
+            Hours: Hours
         };
 
-        console.log(insideFilms);
-        //await page.screenshot({path:"captura.png"})
+        console.log(JSON.stringify(insideFilms, null, 2));
+        break;
     }
 
     
