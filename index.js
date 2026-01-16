@@ -25,14 +25,39 @@ async function ScrapeData(url) {
             timeout: 60000
         });
 
-        await page.screenshot({path:"captura.png"})
+        const Sinopsis= await page.evaluate(() => {
+            const sinopsisElements= document.querySelector(".ficha-sinopsis").innerText.trim();
+            return sinopsisElements;
+        });
 
-        break;
+        const Days= await page.evaluate(() => {
+            const daysElements= document.querySelectorAll(".fch-format"); //Here we are taking all the hours queries without html
+            const daysText= Array.from(daysElements).map(element => element.innerText.trim());
+            return daysText;
+        });
+
+        const Hours= await page.evaluate(() => {
+            const hoursElements= document.querySelectorAll(".hora-ses");
+            const hoursText= Array.from(hoursElements).map(element => element.innerText.trim());
+            return hoursText;
+        });
+
+        const insideFilms = {
+            title: film.title,
+            sinopsis: Sinopsis,
+            days: Days,
+            hours: Hours
+        };
+
+        console.log(insideFilms);
+        //await page.screenshot({path:"captura.png"})
     }
+
+    
 
     browser.close();
 
-    console.log(allFilms);
+    //console.log(allFilms);
 }
 
 ScrapeData("https://park.cinesabc.com/");
