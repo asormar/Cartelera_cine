@@ -19,6 +19,16 @@ async function ScrapeData(url) {
     })
 
 
+    for (let film of allFilms){
+        await page.goto(film.date_url_id, {
+            waitUntil: 'domcontentloaded',
+            timeout: 60000
+        });
+
+        await page.screenshot({path:"captura.png"})
+
+        break;
+    }
 
     browser.close();
 
