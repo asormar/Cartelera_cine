@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer";
+import { sendNewsletter } from "./newsletter.js";
 
 async function ScrapeData(url) {
     const browser= await puppeteer.launch();
@@ -77,21 +78,40 @@ async function ScrapeData(url) {
         const insideFilms = {
             title: film.title,
             sinopsis: Sinopsis,
-            days: Days,
-            hours: Hours
+            Days: Days,
+            Hours: Hours
         };
 
         allFilmsData.push(insideFilms);
 
-        break;
+        //break;
     }
 
     browser.close();
 
-    console.dir(allFilmsData, { depth: null, colors: true }); //Like console.log but does not block objects view
-
     return allFilmsData;
 }
 
-ScrapeData("https://park.cinesabc.com/");
+//To coordinate the scraper and the email sender
+async function main(){
+    try{
+        console.log("🔍 Iniciando scraping...");
+
+        const filmsData= await ScrapeData("https://park.cinesabc.com/");
+
+        console.log('Se han encontrado ${filmsData.length} películas.'); //Use ' because " would print literally the text
+        console.dir(filmsData, { depth: null, colors: true }); //Like console.log but does not block objects view
+
+        console.log("✉️ Enviando Newsletter...");
+
+        await sendNewsletter(filmsData);
+    } catch (error){
+        console.error("Error en el proceso:", error);
+    }
+
+}
+
+main();
+
+
  

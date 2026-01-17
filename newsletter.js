@@ -93,7 +93,7 @@ function generateNewsletterHTML(films) {
 
 
 
-export async function sendNewsLetter(filmsData) {
+export async function sendNewsletter(filmsData) {
     const htmlContent = generateNewsletterHTML(filmsData);
 
     const mailOptions= {
