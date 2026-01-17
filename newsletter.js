@@ -90,3 +90,28 @@ function generateNewsletterHTML(films) {
         </html>
     `;
 }
+
+
+
+export async function sendNewsLetter(filmsData) {
+    const htmlContent = generateNewsletterHTML(filmsData);
+
+    const mailOptions= {
+        from: "Cartelera de Cine 🎬 <" + process.env.EMAIL_USER + ">",
+        to: process.env.RECIPIENT_EMAIL,
+        subject: `🎬 Cartelera actualizada - ${new Date().toLocaleDateString('es-ES')}`,
+        html: htmlContent
+    };
+
+    try{
+        const info= await transporter.sendMail(mailOptions);
+        console.log('✅ Newsletter enviada exitosamente!');
+        console.log('Message ID:', info.messageId);
+        return { success: true, messageId: info.messageId };
+    }
+
+    catch(error){
+        console.error('❌ Error enviando newsletter:', error);
+        return { success: false, error: error.message };
+    }
+}
