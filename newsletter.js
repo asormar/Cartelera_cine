@@ -6,7 +6,7 @@ dotenv.config();
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
-    secure: true, // true para port 465
+    secure: true,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -18,19 +18,20 @@ function generateNewsletterHTML(films) {
         <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; background: #fff;">
             <h2 style="color: #e50914; margin-top: 0;">${film.title}</h2>
             
-            <div style="margin: 15px 0;">
-                <h3 style="color: #333; font-size: 16px;">📝 Sinopsis:</h3>
-                <p style="color: #666; line-height: 1.6;">${film.sinopsis}</p>
+            <!-- Póster de la película -->
+            <div style="margin: 15px 0; text-align: center;">
+                ${film.poster ? 
+                    `<img src="${film.poster}" alt="${film.title}" style="max-width: 300px; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">` 
+                    : '<p style="color: #999; font-style: italic;">Póster no disponible</p>'}
             </div>
             
             <div style="margin: 15px 0;">
                 <h3 style="color: #333; font-size: 16px;">📅 Horarios disponibles:</h3>
                 ${film.Days.map((day, index) => {
-                    const dayKey = Object.keys(day)[0]; // dayKey = "tabs-1"
-
-                    const dayValue = day[dayKey]; // dayValue = "Lunes 20 de Enero"
+                    const dayKey = Object.keys(day)[0];
+                    const dayValue = day[dayKey];
                     
-                    const hours = film.Hours.hoursText[index] ? // Find the right dates
+                    const hours = film.Hours.hoursText[index] ? 
                         Object.values(film.Hours.hoursText[index])[0] : [];
                     
                     return `
@@ -60,15 +61,14 @@ function generateNewsletterHTML(films) {
                 
                 <!-- Header -->
                 <div style="background: linear-gradient(135deg, #e50914 0%, #b20710 100%); padding: 30px; text-align: center;">
-                    <h1 style="color: white; margin: 0; font-size: 28px;">🎬 Cartelera de Cine</h1>
-                    <p style="color: #fff; margin: 10px 0 0 0; opacity: 0.9;">Tu resumen semanal de películas</p>
+                    <h1 style="color: white; margin: 0; font-size: 28px;">🎬 Cartelera ABC Park</h1>
                 </div>
                 
                 <!-- Content -->
                 <div style="padding: 20px;">
-                    <p style="color: #333; font-size: 16px;">¡Hola! 👋</p>
+                    <p style="color: #333; font-size: 16px;">¡Hola buenas!</p>
                     <p style="color: #666; line-height: 1.6;">
-                        Aquí está la cartelera actualizada con las películas disponibles y sus horarios.
+                        Aquí tienes el resumen de esta semana de las películas disponibles en el ABC Park de Valencia.
                     </p>
                     
                     ${filmCards}
@@ -81,7 +81,7 @@ function generateNewsletterHTML(films) {
                 <!-- Footer -->
                 <div style="background: #333; padding: 20px; text-align: center;">
                     <p style="color: #999; margin: 0; font-size: 12px;">
-                        Newsletter generada automáticamente • ${new Date().toLocaleDateString('es-ES')}
+                        ${new Date().toLocaleDateString('es-ES')}
                     </p>
                 </div>
                 
@@ -91,26 +91,22 @@ function generateNewsletterHTML(films) {
     `;
 }
 
-
-
 export async function sendNewsletter(filmsData) {
     const htmlContent = generateNewsletterHTML(filmsData);
 
-    const mailOptions= {
-        from: "Cartelera de Cine 🎬 <" + process.env.EMAIL_USER + ">",
+    const mailOptions = {
+        from: `"Cartelera de Cine 🎬" <${process.env.EMAIL_USER}>`,
         to: process.env.RECIPIENT_EMAIL,
         subject: `🎬 Cartelera actualizada - ${new Date().toLocaleDateString('es-ES')}`,
         html: htmlContent
     };
 
-    try{
-        const info= await transporter.sendMail(mailOptions);
+    try {
+        const info = await transporter.sendMail(mailOptions);
         console.log('✅ Newsletter enviada exitosamente!');
         console.log('Message ID:', info.messageId);
         return { success: true, messageId: info.messageId };
-    }
-
-    catch(error){
+    } catch (error) {
         console.error('❌ Error enviando newsletter:', error);
         return { success: false, error: error.message };
     }

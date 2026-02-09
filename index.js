@@ -32,6 +32,15 @@ async function ScrapeData(url) {
             return sinopsisElements;
         });
 
+        const Poster = await page.evaluate(() => {
+            // Buscar la primera imagen que tenga un src que contenga "obj/LCinesD_dat/eventos"
+            const posterElement = Array.from(document.querySelectorAll("img"))
+                .find(img => img.src.includes("/obj/LCinesD_dat/eventos/"));
+            
+            return posterElement ? posterElement.src : null;
+        });
+
+
         const Days= await page.evaluate(() => {
             const allTabs= document.querySelectorAll(".ui-tabs-tab");
 
@@ -78,6 +87,7 @@ async function ScrapeData(url) {
         const insideFilms = {
             title: film.title,
             sinopsis: Sinopsis,
+            poster: Poster,
             Days: Days,
             Hours: Hours
         };
