@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import { sendNewsletter } from "./newsletter.js";
+import cron from "node-cron";
 
 async function ScrapeData(url) {
     const browser= await puppeteer.launch();
@@ -97,7 +98,7 @@ async function ScrapeData(url) {
         //break;
     }
 
-    browser.close();
+    await browser.close();
 
     return allFilmsData;
 }
@@ -109,7 +110,7 @@ async function main(){
 
         const filmsData= await ScrapeData("https://park.cinesabc.com/");
 
-        console.log('Se han encontrado ${filmsData.length} películas.'); //Use ' because " would print literally the text
+        console.log(`Se han encontrado ${filmsData.length} películas.`); //Use ' because " would print literally the text
         console.dir(filmsData, { depth: null, colors: true }); //Like console.log but does not block objects view
 
         console.log("✉️ Enviando Newsletter...");
@@ -121,7 +122,18 @@ async function main(){
 
 }
 
-main();
+// Schedule newsletter to be sent twice a week
+console.log("🚀 Iniciando programador de newsletter...");
+console.log("📅 La newsletter se enviará los lunes y jueves a las 9:00 AM");
 
+// Run every Monday and Thursday at 9:00 AM (Europe/Madrid timezone)
+// 0 9 * * 1,4 = every Monday (1) and Thursday (4) at 9:00 AM
+cron.schedule('0 8 * * 1,4', () => {
+    console.log(`\n⏰ [${new Date().toLocaleString('es-ES')}] Ejecutando tarea programada...`);
+    main();
+}, {
+    timezone: "Europe/Madrid"
+});
 
- 
+// Uncomment the following line to run immediately on startup (for testing)
+// main();
