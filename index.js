@@ -2,7 +2,17 @@ import puppeteer from "puppeteer";
 import { sendNewsletter } from "./newsletter.js";
 
 async function ScrapeData(url) {
-    const browser= await puppeteer.launch();
+    // Launch browser with appropriate flags for CI environments
+    const browser= await puppeteer.launch({
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu'
+        ]
+    });
+    
     const page= await browser.newPage();
     await page.goto(url, {
         waitUntil: 'domcontentloaded',
@@ -76,6 +86,9 @@ async function ScrapeData(url) {
                     hoursText.push({[each_id]: hoursTemporary});
                 }
             }
+
+
+
 
             return {hoursText};
 
