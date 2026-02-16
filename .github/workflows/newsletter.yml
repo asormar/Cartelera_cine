@@ -1,0 +1,42 @@
+name: Send Newsletter
+
+on:
+  schedule:
+    - cron: '0 8 * * 1,4'  # Monday and Thursday at 8:00 AM UTC (9:00 AM Madrid)
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  send-newsletter:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Install Puppeteer dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 \
+            libatk-bridge2.0-0 \
+            libdrm-dev \
+            libxkbcommon-dev \
+            libgbm-dev \
+            libasound2 \
+            libatspi2.0-0 \
+            libxshmfence-dev
+      
+      - name: Run newsletter script
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: node index.js
